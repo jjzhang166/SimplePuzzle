@@ -3,6 +3,7 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QAction>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -25,5 +26,12 @@ void MainWindow::setupMenu(){
     QMenu *gameMenu = menuBar()->addMenu(tr("&Game"));
     QAction *restartAction = gameMenu->addAction(tr("&Restart"));
 
+}
+
+void MainWindow::openImage(QString &path){
+    QString filePath = path;
+    if(filePath.isNull()){
+        filePath = QFileDialog::getOpenFileName(this,);
+    }
 }
 
