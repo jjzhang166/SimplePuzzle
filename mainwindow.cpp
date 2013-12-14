@@ -28,10 +28,10 @@ void MainWindow::setupMenu(){
 
 }
 
-void MainWindow::openImage(QString &path){
+void MainWindow::openImage(QString path){
     QString filePath = path;
     if(filePath.isNull()){
-        filePath = QFileDialog::getOpenFileName(this,);
+        filePath = QFileDialog::getOpenFileName(this,tr("Open File"),"","Image Files (*.png *.jpg *.bmp)");
     }
 }
 
