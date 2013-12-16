@@ -45,6 +45,7 @@ void PuzzleWidget::paintEvent(QPaintEvent *event){
     if(highlightedRect.isValid()){
         painter.setBrush(QColor("#ffcccc"));
         painter.setPen(Qt::NoPen);
+        //adjusted 在原来的QRect的基础上附加值，并返回新的QRect
         painter.drawRect(highlightedRect.adjusted(0, 0, -1, -1));
     }
 }
