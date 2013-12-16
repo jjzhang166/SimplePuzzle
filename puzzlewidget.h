@@ -27,6 +27,7 @@ protected:
 private:
     QList<QPixmap> piecePixmaps;
     QList<QPoint> pieceLocations;
+    QList<QRect> pieceRects;
     int width;
     int height;
 
