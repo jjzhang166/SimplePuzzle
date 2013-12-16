@@ -20,16 +20,20 @@ protected:
     void paintEvent(QPaintEvent *event);
 
 //    void dragEnterEvent(QDragEnterEvent *event);
-//    void mousePressEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event);
 //    void dragMoveEvent(QDragMoveEvent *event);
 //    void dropEvent(QDropEvent *event);
 
 private:
+
+    QRect findPiece(QPoint point);
+
     QList<QPixmap> piecePixmaps;
     QList<QPoint> pieceLocations;
     QList<QRect> pieceRects;
     int width;
     int height;
+    QRect highlightedRect;
 
 };
 

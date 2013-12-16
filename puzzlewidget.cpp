@@ -2,6 +2,7 @@
 
 #include <QPixmap>
 #include <QPainter>
+#include <QDebug>
 
 PuzzleWidget::PuzzleWidget(QWidget *parent) :
     QWidget(parent)
@@ -40,4 +41,27 @@ void PuzzleWidget::paintEvent(QPaintEvent *event){
         //painter.drawPixmap(pieceLocations.at(i),piecePixmaps.at(i));
         painter.drawPixmap(pieceRects.at(i),piecePixmaps.at(i));
     }
+
+    if(highlightedRect.isValid()){
+        painter.setBrush(QColor("#ffcccc"));
+        painter.setPen(Qt::NoPen);
+        painter.drawRect(highlightedRect.adjusted(0, 0, -1, -1));
+    }
+}
+
+void PuzzleWidget::mousePressEvent(QMouseEvent *event){
+    QPoint p = event->pos();
+    QRect rect = findPiece(p);
+    highlightedRect = rect;
+    update(rect);
+}
+
+//根据QPoint查找QRect主要的含义是找出拖拽的对象
+QRect PuzzleWidget::findPiece(QPoint point){
+    foreach (QRect rect, pieceRects) {
+        if(rect.contains(point)){
+            return rect;
+        }
+    }
+    return QRect();
 }
