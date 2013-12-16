@@ -32,6 +32,7 @@ void PuzzleWidget::splitImageToPieces(QPixmap &sourcePixmap,int &rows,int &colum
     }
 }
 
+//重新绘图
 void PuzzleWidget::paintEvent(QPaintEvent *event){
     QWidget::paintEvent(event);
     QPainter painter(this);

@@ -7,18 +7,19 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    // MainWindow w;
-    //w.show();
+//    MainWindow w;
+//    w.openImage(":/images/example.jpg");
+//    w.show();
 
-    PuzzleWidget p;
+    PuzzleWidget widget;
+    int rows = 5;
+    int column = 5;
     QPixmap pixmap;
     pixmap.load(":/images/example.jpg");
     if(!pixmap.isNull()){
-        int rows = 5;
-        int columns = 5;
-        p.splitImageToPieces(pixmap,rows,columns);
+        widget.splitImageToPieces(pixmap,rows,column);
     }
-    p.show();
+    widget.show();
 
     return a.exec();
 }
