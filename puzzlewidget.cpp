@@ -3,6 +3,9 @@
 #include <QPixmap>
 #include <QPainter>
 #include <QDebug>
+#include <QDragEnterEvent>
+#include <QMimeData>
+#include <QDrag>
 
 PuzzleWidget::PuzzleWidget(QWidget *parent) :
     QWidget(parent)
@@ -37,10 +40,6 @@ void PuzzleWidget::splitImageToPieces(QPixmap &sourcePixmap,int &rows,int &colum
 void PuzzleWidget::paintEvent(QPaintEvent *event){
     QWidget::paintEvent(event);
     QPainter painter(this);
-    for(int i = 0; i < piecePixmaps.size(); ++i){
-        //painter.drawPixmap(pieceLocations.at(i),piecePixmaps.at(i));
-        painter.drawPixmap(pieceRects.at(i),piecePixmaps.at(i));
-    }
 
     if(highlightedRect.isValid()){
         painter.setBrush(QColor("#ffcccc"));
@@ -48,13 +47,49 @@ void PuzzleWidget::paintEvent(QPaintEvent *event){
         //adjusted 在原来的QRect的基础上附加值，并返回新的QRect
         painter.drawRect(highlightedRect.adjusted(0, 0, -1, -1));
     }
+
+    for(int i = 0; i < piecePixmaps.size(); ++i){
+        //painter.drawPixmap(pieceLocations.at(i),piecePixmaps.at(i));
+        QRect rect = pieceRects.at(i);
+        painter.drawPixmap(rect.adjusted(0,0,-1,-1),piecePixmaps.at(i));
+    }
+
+}
+
+void PuzzleWidget::dragEnterEvent(QDragEnterEvent *event){
+    if(event->mimeData()->hasFormat("image/x-puzzle-piece")){
+        event->accept();
+    }else{
+        event->ignore();
+    }
 }
 
 void PuzzleWidget::mousePressEvent(QMouseEvent *event){
     QPoint p = event->pos();
-    QRect rect = findPiece(p);
-    highlightedRect = rect;
-    update(rect);
+    QRect currentRect = findPiece(p);
+    QPixmap pixmap = findPixmap(currentRect);
+
+    QByteArray itemData;
+    QDataStream dataStream(&itemData,QIODevice::WriteOnly);
+    dataStream << pixmap;
+
+    QMimeData *mimeData = new QMimeData();
+    mimeData->setData("image/x-puzzle-piece",itemData);
+    QDrag *drag = new QDrag(this);
+    drag->setPixmap(pixmap);
+    drag->setMimeData(mimeData);
+    drag->setHotSpot(event->pos() - currentRect.topLeft());
+
+    //highlightedRect = currentRect;
+    update(currentRect);
+
+    if(drag->exec(Qt::MoveAction) == Qt::MoveAction){
+
+    }else{
+
+    }
+
+
 }
 
 //根据QPoint查找QRect主要的含义是找出拖拽的对象
@@ -65,4 +100,12 @@ QRect PuzzleWidget::findPiece(QPoint point){
         }
     }
     return QRect();
+}
+
+QPixmap PuzzleWidget::findPixmap(QRect rect){
+    for(int i = 0; i < pieceRects.size(); i++){
+        if(rect == pieceRects[i]){
+            return piecePixmaps[i];
+        }
+    }
 }
