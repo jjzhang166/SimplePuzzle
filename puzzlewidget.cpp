@@ -64,24 +64,27 @@ void PuzzleWidget::dragEnterEvent(QDragEnterEvent *event){
     }
 }
 
+//鼠标点击方法
 void PuzzleWidget::mousePressEvent(QMouseEvent *event){
     QPoint p = event->pos();
-    QRect currentRect = findPiece(p);
-    QPixmap pixmap = findPixmap(currentRect);
+    int index = findIndex(p);
+    if(-1 == index){
+        return;
+    }
+    QPixmap pixmap = piecePixmaps[index];
+    QRect rect = pieceRects[index];
 
     QByteArray itemData;
     QDataStream dataStream(&itemData,QIODevice::WriteOnly);
     dataStream << pixmap;
+
 
     QMimeData *mimeData = new QMimeData();
     mimeData->setData("image/x-puzzle-piece",itemData);
     QDrag *drag = new QDrag(this);
     drag->setPixmap(pixmap);
     drag->setMimeData(mimeData);
-    drag->setHotSpot(event->pos() - currentRect.topLeft());
-
-    //highlightedRect = currentRect;
-    update(currentRect);
+    drag->setHotSpot(event->pos() - rect.topLeft());
 
     if(drag->exec(Qt::MoveAction) == Qt::MoveAction){
 
@@ -92,20 +95,14 @@ void PuzzleWidget::mousePressEvent(QMouseEvent *event){
 
 }
 
-//根据QPoint查找QRect主要的含义是找出拖拽的对象
-QRect PuzzleWidget::findPiece(QPoint point){
-    foreach (QRect rect, pieceRects) {
+//根据QPoint查找索引位置
+int PuzzleWidget::findIndex(QPoint point){
+    for(int i = 0; i < pieceRects.size(); i++){
+        QRect rect = pieceRects.at(i);
         if(rect.contains(point)){
-            return rect;
+            return i;
         }
     }
-    return QRect();
+    return -1;
 }
 
-QPixmap PuzzleWidget::findPixmap(QRect rect){
-    for(int i = 0; i < pieceRects.size(); i++){
-        if(rect == pieceRects[i]){
-            return piecePixmaps[i];
-        }
-    }
-}

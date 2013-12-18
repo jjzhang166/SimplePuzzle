@@ -26,8 +26,7 @@ protected:
 
 private:
 
-    QRect findPiece(QPoint point);
-    QPixmap findPixmap(QRect rect);
+    int findIndex(QPoint point);
 
     QList<QPixmap> piecePixmaps;
     QList<QPoint> pieceLocations;
