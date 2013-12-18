@@ -4,6 +4,7 @@
 #include <QPainter>
 #include <QDebug>
 #include <QDragEnterEvent>
+#include <QDropEvent>
 #include <QMimeData>
 #include <QDrag>
 
@@ -29,7 +30,6 @@ void PuzzleWidget::splitImageToPieces(QPixmap &sourcePixmap,int &rows,int &colum
             QPixmap currentPiecePixmap = currentPixmap.copy(j * width,i * height,
                                                             width,height);
             piecePixmaps.append(currentPiecePixmap);
-            pieceLocations.append(QPoint(j * width,i * height));
             QRect rect = QRect(j * width,i * height,width,height);
             pieceRects.append(rect);
         }
@@ -41,17 +41,16 @@ void PuzzleWidget::paintEvent(QPaintEvent *event){
     QWidget::paintEvent(event);
     QPainter painter(this);
 
+    for(int i = 0; i < piecePixmaps.size(); ++i){
+        QRect rect = pieceRects.at(i);
+        painter.drawPixmap(rect.adjusted(0,0,-1,-1),piecePixmaps.at(i));
+    }
+
     if(highlightedRect.isValid()){
         painter.setBrush(QColor("#ffcccc"));
         painter.setPen(Qt::NoPen);
         //adjusted 在原来的QRect的基础上附加值，并返回新的QRect
         painter.drawRect(highlightedRect.adjusted(0, 0, -1, -1));
-    }
-
-    for(int i = 0; i < piecePixmaps.size(); ++i){
-        //painter.drawPixmap(pieceLocations.at(i),piecePixmaps.at(i));
-        QRect rect = pieceRects.at(i);
-        painter.drawPixmap(rect.adjusted(0,0,-1,-1),piecePixmaps.at(i));
     }
 
 }
@@ -66,22 +65,19 @@ void PuzzleWidget::dragEnterEvent(QDragEnterEvent *event){
 
 //鼠标点击方法
 void PuzzleWidget::mousePressEvent(QMouseEvent *event){
-    QPoint p = event->pos();
-    int index = findIndex(p);
+    QRect rect = targetSquare(event->pos());
+    int index = findIndex(rect);
     if(-1 == index){
         return;
     }
     QPixmap pixmap = piecePixmaps[index];
-    QRect rect = pieceRects[index];
 
     //拖动开始时需要去除
-    piecePixmaps.removeAt(index);
-    pieceRects.removeAt(index);
     update(rect);
 
     QByteArray itemData;
     QDataStream dataStream(&itemData,QIODevice::WriteOnly);
-    dataStream << pixmap;
+    dataStream << pixmap << index ;
 
     QMimeData *mimeData = new QMimeData();
     mimeData->setData("image/x-puzzle-piece",itemData);
@@ -92,20 +88,73 @@ void PuzzleWidget::mousePressEvent(QMouseEvent *event){
 
     if(!(drag->exec(Qt::MoveAction) == Qt::MoveAction)){
         //如果拖动不成功重新赋值回去
-        piecePixmaps.insert(index,pixmap);
-        pieceRects.insert(index,rect);
         update(rect);
     }
 }
 
-//根据QPoint查找索引位置
-int PuzzleWidget::findIndex(QPoint point){
+//拖动时
+void PuzzleWidget::dragMoveEvent(QDragMoveEvent *event){
+    //找到当前处于哪一块上
+    QRect rect = targetSquare(event->pos());
+    int index = findIndex(rect);
+    qDebug() << index;
+    if(event->mimeData()->hasFormat("image/x-puzzle-piece") && index != -1){
+        //将该块绘制成高亮
+//        rect = pieceRects[index];
+//        highlightedRect = rect;
+        event->setDropAction(Qt::MoveAction);
+        event->accept();
+    }else{
+        event->ignore();
+    }
+    update(rect);
+}
+
+//取消拖动时 与dragMoveEvent相反
+void PuzzleWidget::dragLeaveEvent(QDragLeaveEvent *event){
+    QRect rect = highlightedRect;
+    highlightedRect = QRect();
+    update(rect);
+    event->accept();
+}
+
+void PuzzleWidget::dropEvent(QDropEvent *event){
+    QRect rect = targetSquare(event->pos());
+    int currentIndex = findIndex(rect);
+
+    if(event->mimeData()->hasFormat("image/x-puzzle-piece") && currentIndex != -1){
+        QByteArray puzzleData = event->mimeData()->data("image/x-puzzle-piece");
+        int index;
+        QPixmap pixmap;
+        QDataStream dataStream(&puzzleData,QIODevice::ReadOnly);
+        dataStream >> pixmap >> index;
+
+        qDebug() << currentIndex << " " << index;
+
+        //交换
+        QPixmap currentPixmap = piecePixmaps[currentIndex];
+        piecePixmaps[index] = currentPixmap;
+        piecePixmaps[currentIndex] = pixmap;
+
+        event->accept();
+        update();
+    }else{
+        event->ignore();
+    }
+}
+
+//将坐标转换成Rect
+QRect PuzzleWidget::targetSquare(const QPoint &position) const
+{
+    return QRect(position.x()/width * width, position.y()/height * height, width, height);
+}
+
+//查找索引
+int PuzzleWidget::findIndex(QRect rect){
     for(int i = 0; i < pieceRects.size(); i++){
-        QRect rect = pieceRects.at(i);
-        if(rect.contains(point)){
+        if(rect == pieceRects[i]){
             return i;
         }
     }
     return -1;
 }
-

@@ -21,15 +21,16 @@ protected:
 
     void dragEnterEvent(QDragEnterEvent *event);
     void mousePressEvent(QMouseEvent *event);
-//    void dragMoveEvent(QDragMoveEvent *event);
-//    void dropEvent(QDropEvent *event);
+    void dragMoveEvent(QDragMoveEvent *event);
+    void dragLeaveEvent(QDragLeaveEvent *event);
+    void dropEvent(QDropEvent *event);
 
 private:
 
-    int findIndex(QPoint point);
+    QRect targetSquare(const QPoint &position) const;
+    int findIndex(QRect rect);
 
     QList<QPixmap> piecePixmaps;
-    QList<QPoint> pieceLocations;
     QList<QRect> pieceRects;
     int width;
     int height;
