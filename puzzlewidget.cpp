@@ -74,25 +74,28 @@ void PuzzleWidget::mousePressEvent(QMouseEvent *event){
     QPixmap pixmap = piecePixmaps[index];
     QRect rect = pieceRects[index];
 
+    //拖动开始时需要去除
+    piecePixmaps.removeAt(index);
+    pieceRects.removeAt(index);
+    update(rect);
+
     QByteArray itemData;
     QDataStream dataStream(&itemData,QIODevice::WriteOnly);
     dataStream << pixmap;
 
-
     QMimeData *mimeData = new QMimeData();
     mimeData->setData("image/x-puzzle-piece",itemData);
     QDrag *drag = new QDrag(this);
-    drag->setPixmap(pixmap);
     drag->setMimeData(mimeData);
     drag->setHotSpot(event->pos() - rect.topLeft());
+    drag->setPixmap(pixmap);
 
-    if(drag->exec(Qt::MoveAction) == Qt::MoveAction){
-
-    }else{
-
+    if(!(drag->exec(Qt::MoveAction) == Qt::MoveAction)){
+        //如果拖动不成功重新赋值回去
+        piecePixmaps.insert(index,pixmap);
+        pieceRects.insert(index,rect);
+        update(rect);
     }
-
-
 }
 
 //根据QPoint查找索引位置
