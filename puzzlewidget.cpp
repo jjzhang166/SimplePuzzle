@@ -78,7 +78,7 @@ void PuzzleWidget::mousePressEvent(QMouseEvent *event){
 
     QByteArray itemData;
     QDataStream dataStream(&itemData,QIODevice::WriteOnly);
-    dataStream << pixmap << index ;
+    dataStream << index ;
 
     QMimeData *mimeData = new QMimeData();
     mimeData->setData("image/x-puzzle-piece",itemData);
@@ -126,20 +126,26 @@ void PuzzleWidget::dropEvent(QDropEvent *event){
     if(event->mimeData()->hasFormat("image/x-puzzle-piece") && currentIndex != -1){
         QByteArray puzzleData = event->mimeData()->data("image/x-puzzle-piece");
         int index;
-        QPixmap pixmap;
         QDataStream dataStream(&puzzleData,QIODevice::ReadOnly);
-        dataStream >> pixmap >> index;
-        //交换图片位置
+        dataStream >> index;
+        if(currentIndex == index){
+            event->ignore();
+            return;
+        }
+        //交换图片
         QPixmap currentPixmap = piecePixmaps[currentIndex];
         piecePixmaps[currentIndex] = piecePixmaps[index];
         piecePixmaps[index] = currentPixmap;
-
-//        QPoint indexPoint = pieceLocations[index];
-//        QPoint currentPoint = pieceLocations[currentIndex];
-
-
+        //交换图片位置
+        QPoint currentLocation = pieceLocations[currentIndex];
+        pieceLocations[currentIndex] = pieceLocations[index];
+        pieceLocations[index] = currentLocation;
+        //判断位置是否处于正确的位置
+        rightPlace();
+        //接受后更新
         event->accept();
-        update();
+        update(pieceRects[currentIndex]);
+        update(pieceRects[index]);
     }else{
         event->ignore();
     }
@@ -159,4 +165,20 @@ int PuzzleWidget::findIndex(QRect rect){
         }
     }
     return -1;
+}
+
+//计算成功的数量
+bool PuzzleWidget::rightPlace(){
+    int inPlace = 0;
+    //根据QRect 是否包含有QPoint判断改图片是否处于正确的位置
+    for(int i = 0; i < pieceRects.size(); i++){
+        if(pieceRects[i].contains(pieceLocations[i])){
+             ++inPlace;
+        }
+    }
+    qDebug() << "inPlace:" << inPlace;
+    if(inPlace == pieceSize()){
+        return true;
+    }
+    return false;
 }

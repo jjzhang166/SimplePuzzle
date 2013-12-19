@@ -28,7 +28,8 @@ protected:
 private:
 
     QRect targetSquare(const QPoint &position) const;
-    int findIndex(QRect rect);
+    int findIndex(const QRect rect);
+    bool rightPlace();
 
     QList<QPixmap> piecePixmaps;
     QList<QRect> pieceRects;
