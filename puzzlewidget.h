@@ -32,8 +32,10 @@ private:
 
     QList<QPixmap> piecePixmaps;
     QList<QRect> pieceRects;
-    int width;
-    int height;
+    QList<QPoint> pieceLocations; //用于记录每个方块的正确位置
+
+    int width; //宽度
+    int height; //高度
     QRect highlightedRect;
 
 };

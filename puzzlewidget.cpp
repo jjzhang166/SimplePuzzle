@@ -31,6 +31,7 @@ void PuzzleWidget::splitImageToPieces(QPixmap &sourcePixmap,int &rows,int &colum
                                                             width,height);
             piecePixmaps.append(currentPiecePixmap);
             QRect rect = QRect(j * width,i * height,width,height);
+            pieceLocations.append(QPoint(j * width, i * height));
             pieceRects.append(rect);
         }
     }
@@ -97,7 +98,6 @@ void PuzzleWidget::dragMoveEvent(QDragMoveEvent *event){
     //找到当前处于哪一块上
     QRect rect = targetSquare(event->pos());
     int index = findIndex(rect);
-    qDebug() << index;
     if(event->mimeData()->hasFormat("image/x-puzzle-piece") && index != -1){
         //将该块绘制成高亮
 //        rect = pieceRects[index];
@@ -118,6 +118,7 @@ void PuzzleWidget::dragLeaveEvent(QDragLeaveEvent *event){
     event->accept();
 }
 
+//释放
 void PuzzleWidget::dropEvent(QDropEvent *event){
     QRect rect = targetSquare(event->pos());
     int currentIndex = findIndex(rect);
@@ -128,13 +129,14 @@ void PuzzleWidget::dropEvent(QDropEvent *event){
         QPixmap pixmap;
         QDataStream dataStream(&puzzleData,QIODevice::ReadOnly);
         dataStream >> pixmap >> index;
-
-        qDebug() << currentIndex << " " << index;
-
-        //交换
+        //交换图片位置
         QPixmap currentPixmap = piecePixmaps[currentIndex];
+        piecePixmaps[currentIndex] = piecePixmaps[index];
         piecePixmaps[index] = currentPixmap;
-        piecePixmaps[currentIndex] = pixmap;
+
+//        QPoint indexPoint = pieceLocations[index];
+//        QPoint currentPoint = pieceLocations[currentIndex];
+
 
         event->accept();
         update();
