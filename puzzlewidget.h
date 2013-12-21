@@ -14,7 +14,7 @@ class PuzzleWidget : public QWidget
 public:
     explicit PuzzleWidget(QWidget *parent = 0);
     void splitImageToPieces(QPixmap &sourcePixmap,int &rows,int &columns);
-    int pieceSize() const {return piecePixmaps.size();}
+    int pieceSize() const {return piecePixmaps.length();}
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -29,7 +29,8 @@ private:
 
     QRect targetSquare(const QPoint &position) const;
     int findIndex(const QRect rect);
-    bool rightPlace();
+    bool rightPlace();     //根据所处位置的QRect与QPoint进行比较
+    void shuffled();
 
     QList<QPixmap> piecePixmaps;
     QList<QRect> pieceRects;

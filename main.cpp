@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QPixmap>
 #include <QDebug>
+#include <QTime>
 
 int main(int argc, char *argv[])
 {

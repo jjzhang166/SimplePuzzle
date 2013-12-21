@@ -7,6 +7,7 @@
 #include <QDropEvent>
 #include <QMimeData>
 #include <QDrag>
+#include <QTime>
 
 PuzzleWidget::PuzzleWidget(QWidget *parent) :
     QWidget(parent)
@@ -35,6 +36,9 @@ void PuzzleWidget::splitImageToPieces(QPixmap &sourcePixmap,int &rows,int &colum
             pieceRects.append(rect);
         }
     }
+
+    shuffled();
+
 }
 
 //重新绘图
@@ -181,4 +185,33 @@ bool PuzzleWidget::rightPlace(){
         return true;
     }
     return false;
+}
+
+void PuzzleWidget::shuffled(){
+    //初始化
+    int initArray[pieceSize()] ;
+    for(int i = 0; i < pieceSize(); i++){
+        initArray[i] = i;
+    }
+
+    //乱序
+    QTime time;
+    for(int i = 0; i < pieceSize(); i++){
+        time = QTime::currentTime();
+        qsrand(time.msec()+time.second()*1000);
+        int r = i + qrand()%(pieceSize() - i);
+        int temp = initArray[r];
+        initArray[r] = initArray[i];
+        initArray[i] = temp;
+    }
+
+    for(int i = 0; i < pieceSize(); i++){
+        QPixmap temp = piecePixmaps[i];
+        int change = initArray[i];
+        piecePixmaps[i] = piecePixmaps[change];
+        piecePixmaps[change] = temp;
+        QPoint tempPoint = pieceLocations[i];
+        pieceLocations[i] = pieceLocations[change];
+        pieceLocations[change] = tempPoint;
+    }
 }
