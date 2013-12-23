@@ -19,7 +19,7 @@ void PuzzleWidget::splitImageToPieces(QPixmap &sourcePixmap,int &rows,int &colum
     int size = qMin(sourcePixmap.width(),sourcePixmap.height());
 
     //调整大小
-    QPixmap currentPixmap = sourcePixmap.copy(sourcePixmap.width() - size,size,
+    currentPixmap = sourcePixmap.copy(sourcePixmap.width() - size,size,
                                               sourcePixmap.height() - size,size);
 
     //计算宽度跟高度
@@ -57,6 +57,8 @@ void PuzzleWidget::paintEvent(QPaintEvent *event){
         //adjusted 在原来的QRect的基础上附加值，并返回新的QRect
         painter.drawRect(highlightedRect.adjusted(0, 0, -1, -1));
     }
+
+    qDebug() << size();
 
 }
 
