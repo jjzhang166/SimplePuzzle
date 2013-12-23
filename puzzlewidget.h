@@ -16,6 +16,9 @@ public:
     void splitImageToPieces(QPixmap &sourcePixmap,int &rows,int &columns);
     int pieceSize() const {return piecePixmaps.length();}
 
+signals:
+    void puzzleCompleted(); //完成
+
 protected:
     void paintEvent(QPaintEvent *event);
 

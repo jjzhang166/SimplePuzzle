@@ -144,8 +144,10 @@ void PuzzleWidget::dropEvent(QDropEvent *event){
         QPoint currentLocation = pieceLocations[currentIndex];
         pieceLocations[currentIndex] = pieceLocations[index];
         pieceLocations[index] = currentLocation;
-        //判断位置是否处于正确的位置
-        rightPlace();
+        //判断位置是否处于正确的位置,如果全部处于正确的位置则完成
+        if(rightPlace()){
+            emit puzzleCompleted();
+        }
         //接受后更新
         event->accept();
         update(pieceRects[currentIndex]);
