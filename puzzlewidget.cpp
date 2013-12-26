@@ -31,12 +31,15 @@ void PuzzleWidget::splitImageToPieces(QPixmap &sourcePixmap,int &rows,int &colum
             QPixmap currentPiecePixmap = currentPixmap.copy(j * width,i * height,
                                                             width,height);
             piecePixmaps.append(currentPiecePixmap);
-            QRect rect = QRect(j * width,i * height,width,height);
-            pieceLocations.append(QPoint(j * width, i * height));
+            int x = j * width;
+            int y = i * height;
+            QRect rect = QRect( x,y,width,height);
+            pieceLocations.append(QPoint(x, y));
             pieceRects.append(rect);
         }
     }
 
+    //打乱排列顺序，只是打乱了QPoint、QPixmap的顺序
     shuffled();
 
 }

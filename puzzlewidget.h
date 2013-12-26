@@ -42,7 +42,7 @@ private:
     int width; //宽度
     int height; //高度
     QRect highlightedRect;
-    QPixmap currentPixmap;
+    QPixmap currentPixmap;//当前图片大小
 
 };
 

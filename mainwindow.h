@@ -11,11 +11,16 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = 0);
 public slots:
+
     void openImage(QString path = QString());
+    void isCompleted();
+    void restart();
+
 private:
     void setupMenu();
 
     PuzzleWidget *puzzleWidget;
+    QString currentPath;
 };
 
 #endif // MAINWINDOW_H
