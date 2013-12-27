@@ -67,7 +67,7 @@ void MainWindow::openImage(QString path){
 void MainWindow::isCompleted(){
     QMessageBox::information(this,tr("Puzzle Complted"),tr("Congratulations! You have completed the puzzle!\n"
                                                            "Click OK to start again."),QMessageBox::Ok);
-    openImage(currentPath);
+    restart();
 }
 
 //重置游戏
