@@ -13,7 +13,6 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     setFocusPolicy(Qt::NoFocus);
-    resize(400,400);
 
     puzzleWidget = new PuzzleWidget(this);
     this->setCentralWidget(puzzleWidget);
@@ -37,10 +36,12 @@ void MainWindow::setupMenu(){
     connect(exitAction,SIGNAL(triggered()),qApp,SLOT(quit()));
     connect(puzzleWidget,SIGNAL(puzzleCompleted()),this,SLOT(isCompleted()));
     connect(restartAction,SIGNAL(triggered()),this,SLOT(restart()));
+    connect(openAction,SIGNAL(triggered()),this,SLOT(openImage()));
 }
 
 //打开图片
 void MainWindow::openImage(QString path){
+    puzzleWidget->clear();
     currentPath = path;
     if(currentPath.isNull()){
         currentPath = QFileDialog::getOpenFileName(this,tr("Open File"),"","Image Files (*.png *.jpg *.bmp)");
@@ -61,6 +62,7 @@ void MainWindow::openImage(QString path){
         QMessageBox::warning(this,tr("Read File Error"),"Can't read file:"+path,QMessageBox::Cancel);
         return;
     }
+    this->resize(centralWidget()->size());
 }
 
 //完成
@@ -72,8 +74,6 @@ void MainWindow::isCompleted(){
 
 //重置游戏
 void MainWindow::restart(){
-    puzzleWidget = new PuzzleWidget(this);
-    this->setCentralWidget(puzzleWidget);
     openImage(currentPath);
 }
 

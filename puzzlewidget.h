@@ -15,6 +15,7 @@ public:
     explicit PuzzleWidget(QWidget *parent = 0);
     void splitImageToPieces(QPixmap &sourcePixmap,int &rows,int &columns);
     int pieceSize() const {return piecePixmaps.length();}
+    void clear();
 
 signals:
     void puzzleCompleted(); //完成
@@ -25,7 +26,6 @@ protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void dragMoveEvent(QDragMoveEvent *event);
-    void dragLeaveEvent(QDragLeaveEvent *event);
     void dropEvent(QDropEvent *event);
 
 private:
@@ -41,7 +41,6 @@ private:
 
     int width; //宽度
     int height; //高度
-    QRect highlightedRect;
     QPixmap currentPixmap;//当前图片大小
 
 };

@@ -17,11 +17,9 @@ PuzzleWidget::PuzzleWidget(QWidget *parent) :
 
 void PuzzleWidget::splitImageToPieces(QPixmap &sourcePixmap,int &rows,int &columns){
     int size = qMin(sourcePixmap.width(),sourcePixmap.height());
-
     //调整大小
     currentPixmap = sourcePixmap.copy(sourcePixmap.width() - size,size,
                                               sourcePixmap.height() - size,size);
-
     //计算宽度跟高度
     width = currentPixmap.width()/columns;
     height = currentPixmap.height()/rows;
@@ -41,7 +39,8 @@ void PuzzleWidget::splitImageToPieces(QPixmap &sourcePixmap,int &rows,int &colum
 
     //打乱排列顺序，只是打乱了QPoint、QPixmap的顺序
     shuffled();
-
+    resize(currentPixmap.width(),currentPixmap.height());
+    update();
 }
 
 //重新绘图
@@ -53,16 +52,7 @@ void PuzzleWidget::paintEvent(QPaintEvent *event){
         QRect rect = pieceRects.at(i);
         painter.drawPixmap(rect.adjusted(0,0,-1,-1),piecePixmaps.at(i));
     }
-
-    if(highlightedRect.isValid()){
-        painter.setBrush(QColor("#ffcccc"));
-        painter.setPen(Qt::NoPen);
-        //adjusted 在原来的QRect的基础上附加值，并返回新的QRect
-        painter.drawRect(highlightedRect.adjusted(0, 0, -1, -1));
-    }
-
-    qDebug() << size();
-
+    resize(currentPixmap.width(),currentPixmap.height());
 }
 
 void PuzzleWidget::dragEnterEvent(QDragEnterEvent *event){
@@ -108,23 +98,12 @@ void PuzzleWidget::dragMoveEvent(QDragMoveEvent *event){
     QRect rect = targetSquare(event->pos());
     int index = findIndex(rect);
     if(event->mimeData()->hasFormat("image/x-puzzle-piece") && index != -1){
-        //将该块绘制成高亮
-//        rect = pieceRects[index];
-//        highlightedRect = rect;
         event->setDropAction(Qt::MoveAction);
         event->accept();
     }else{
         event->ignore();
     }
     update(rect);
-}
-
-//取消拖动时 与dragMoveEvent相反
-void PuzzleWidget::dragLeaveEvent(QDragLeaveEvent *event){
-    QRect rect = highlightedRect;
-    highlightedRect = QRect();
-    update(rect);
-    event->accept();
 }
 
 //释放
@@ -221,4 +200,13 @@ void PuzzleWidget::shuffled(){
         pieceLocations[i] = pieceLocations[change];
         pieceLocations[change] = tempPoint;
     }
+}
+
+void PuzzleWidget::clear(){
+    piecePixmaps.clear();
+    pieceLocations.clear();
+    pieceRects.clear();
+    currentPixmap = QPixmap();
+    width = 0;
+    height = 0;
 }
